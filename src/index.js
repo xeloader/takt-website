@@ -44,7 +44,7 @@ function Scene (props) {
           {/* <asciiEffect attachArray='passes' args={[gl]} /> */}
           {/* <glitchPass attachArray='passes' args={[gl]} /> */}
           {/* <filmPass attachArray='passes' args={[gl]} /> */}
-          <outlinePass
+          {/* <outlinePass
             attachArray='passes'
             edgeStrenth={1.0}
             edgeGlow={0.0}
@@ -57,7 +57,7 @@ function Scene (props) {
             usePatternTexture={false}
             args={[new Vector2(size.width, size.height), scene, camera, []]}
             renderToScreen
-          />
+          /> */}
         </effectComposer>
         <Suspense fallback={<mesh><boxGeometry attach='geometry' /><meshBasicMaterial color='hotpink' attach='material' /></mesh>}>
           <Box position={[0, 0, 0]} outline={outline} />
@@ -96,17 +96,22 @@ function Box (props) {
   const [hovered, setHover] = useState(false)
   const [active, setActive] = useState(false)
 
+  const [edges, setEdges] = useState()
+
   const gltf = useLoader(STLLoader, '/assets/takt/models/hinge-center.stl')
   const [geometry, setGeometry] = useState()
   useEffect(() => {
     if (!geometry) return
-    const { current } = outline
-    console.log('settings selected objects')
-    console.log(current, geometry, outline)
-    current.selectedObjects.push(mesh.current)
+    // const { current } = outline
+    // console.log('settings selected objects')
+    // console.log(current, geometry, outline)
+    // current.selectedObjects.push(mesh.current)
   }, [geometry])
   useEffect(() => {
     setGeometry(new Geometry().fromBufferGeometry(gltf))
+    const edges = new EdgesGeometry(gltf, 10)
+    console.log('setting edges', edges)
+    setEdges(edges)
   }, [gltf])
   // Rotate mesh every frame, this is outside of React without overhead
   useFrame(() => {
@@ -118,6 +123,14 @@ function Box (props) {
 
   return (
     <group ref={groupRef}>
+      {edges && (
+        <lineSegments
+          geometry={edges}
+          scale={active ? [0.2, 0.2, 0.2] : [0.1, 0.1, 0.1]}
+        >
+          <lineBasicMaterial color='black' attach='material' linewidth={1} />
+        </lineSegments>
+      )}
       <mesh
         {...props}
         ref={mesh}
