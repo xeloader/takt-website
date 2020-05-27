@@ -140,7 +140,7 @@ function Box (props) {
         onPointerOver={(e) => setHover(true)}
         onPointerOut={(e) => setHover(false)}
       >
-        <meshPhongMaterial color={hovered ? 'white' : 'lightgray'} attach='material' />
+        <meshPhongMaterial color={hovered ? 'lightgray' : 'white'} attach='material' />
       </mesh>
     </group>
   )
