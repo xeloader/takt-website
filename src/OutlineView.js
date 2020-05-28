@@ -1,37 +1,58 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { useLoader, Canvas, useFrame, extend } from 'react-three-fiber'
+import React, { useRef, useState, useEffect } from 'react'
+import { useLoader, useFrame } from 'react-three-fiber'
+import { Geometry, EdgesGeometry } from 'three'
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass'
-import { Geometry } from 'three'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-extend({ OrbitControls, OutlinePass })
 
-// <mesh geometry={stl} castShadow receiveShadow>
-//       <meshPhongMaterial color='hotpink' specular={0x111111} shininess={200} attach='material' />
-//     </mesh>
+function OutlineView (props) {
+  const { src } = props
+  // This reference will give us direct access to the mesh
+  const mesh = useRef()
 
-const Outline = (props) => {
-  const object = useLoader(GLTFLoader, props.src, (loader) => {
-    console.log(loader)
-    loader.manager.onError = () => {
-      console.log('errror')
-    }
-    loader.manager.onLoad = () => {
-      console.log('loading...')
-    }
+  // Set up state for the hovered and active state
+  const [hovered, setHover] = useState(false)
+  const [active, setActive] = useState(false)
+
+  const [edges, setEdges] = useState()
+
+  const gltf = useLoader(STLLoader, src)
+  const [geometry, setGeometry] = useState()
+
+  useEffect(() => {
+    setGeometry(new Geometry().fromBufferGeometry(gltf))
+    const edges = new EdgesGeometry(gltf, 10)
+    console.log('setting edges', edges)
+    setEdges(edges)
+  }, [gltf])
+  // Rotate mesh every frame, this is outside of React without overhead
+  useFrame(() => {
+    groupRef.current.rotation.x = groupRef.current.rotation.y += 0.01
+    // console.log(mesh.current.parent.children)
   })
+
+  const groupRef = useRef()
+  const scale = active ? [0.2, 0.2, 0.2] : [0.1, 0.1, 0.1]
   return (
-    <mesh>
-      <meshBasicMaterial color='hotpink' attach='material' />
-      <coneGeometry attach='geometry' />
-    </mesh>
+    <group {...props} ref={groupRef}>
+      {edges && (
+        <lineSegments
+          geometry={edges}
+          scale={scale}
+        >
+          <lineBasicMaterial color='black' attach='material' linewidth={1} />
+        </lineSegments>
+      )}
+      <mesh
+        ref={mesh}
+        geometry={geometry}
+        scale={scale}
+        onClick={(e) => setActive(!active)}
+        onPointerOver={(e) => setHover(true)}
+        onPointerOut={(e) => setHover(false)}
+      >
+        <meshPhongMaterial color={hovered ? 'lightgray' : 'white'} attach='material' />
+      </mesh>
+    </group>
   )
 }
 
-/* <mesh ref={mesh} castShadow receiveShadow>
-    <coneGeometry fromBufferGeometry={bufferGeometry} attach='geometry' />
-    <meshBasicMaterial color='pink' attach='material' />
-  </mesh> */
-
-export default Outline
+export default OutlineView
