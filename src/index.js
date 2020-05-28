@@ -5,16 +5,11 @@ import ReactDOM from 'react-dom'
 import React, { useRef, Suspense, useEffect } from 'react'
 import { Canvas, useFrame, useThree, extend } from 'react-three-fiber'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
-import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass'
-import { AsciiEffect } from 'three/examples/jsm/effects/AsciiEffect.js'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
-import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass'
-import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 import OutlineView from './OutlineView'
 
-extend({ OrbitControls, AsciiEffect, OutlinePass, EffectComposer, RenderPass, GlitchPass, FilmPass })
+extend({ EffectComposer, RenderPass })
 
 function Scene (props) {
   const renderer = useThree()
