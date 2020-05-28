@@ -4,7 +4,13 @@ import { Geometry, EdgesGeometry } from 'three'
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader'
 
 function OutlineView (props) {
-  const { src } = props
+  const {
+    src,
+    scale: userScale = 1,
+    angle = 10,
+    color = 'white',
+    ...rest
+  } = props
   // This reference will give us direct access to the mesh
   const mesh = useRef()
 
@@ -19,8 +25,7 @@ function OutlineView (props) {
 
   useEffect(() => {
     setGeometry(new Geometry().fromBufferGeometry(gltf))
-    const edges = new EdgesGeometry(gltf, 10)
-    console.log('setting edges', edges)
+    const edges = new EdgesGeometry(gltf, angle)
     setEdges(edges)
   }, [gltf])
   // Rotate mesh every frame, this is outside of React without overhead
@@ -30,9 +35,12 @@ function OutlineView (props) {
   })
 
   const groupRef = useRef()
-  const scale = active ? [0.2, 0.2, 0.2] : [0.1, 0.1, 0.1]
+  const scale = active
+    ? [userScale * 2, userScale * 2, userScale * 2]
+    : [userScale, userScale, userScale]
+  const position = [0, 0, 0]
   return (
-    <group {...props} ref={groupRef}>
+    <group position={position} {...rest} ref={groupRef}>
       {edges && (
         <lineSegments
           geometry={edges}
@@ -49,7 +57,7 @@ function OutlineView (props) {
         onPointerOver={(e) => setHover(true)}
         onPointerOut={(e) => setHover(false)}
       >
-        <meshPhongMaterial color={hovered ? 'lightgray' : 'white'} attach='material' />
+        <meshPhongMaterial color={hovered ? 'lightgray' : color} attach='material' />
       </mesh>
     </group>
   )

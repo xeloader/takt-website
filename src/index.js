@@ -25,7 +25,7 @@ function Scene (props) {
   useFrame((_) => {
     composer.current.render()
   }, 1)
-  console.log(size)
+  const scale = 0.2
   return (
     <>
       <scene>
@@ -35,8 +35,9 @@ function Scene (props) {
           <renderPass attachArray='passes' args={[scene, camera]} />
         </effectComposer>
         <Suspense fallback={<mesh><boxGeometry attach='geometry' /><meshBasicMaterial color='hotpink' attach='material' /></mesh>}>
-          <OutlineView src='/assets/takt/models/hinge-center.stl' position={[0, 2, 0]} />
-          <OutlineView src='/assets/takt/models/nut.stl' position={[0, 0, 0]} />
+          <OutlineView scale={scale} src='/assets/takt/models/hinge.stl' />
+          <OutlineView scale={scale} color='#F0F0F0' src='/assets/takt/models/screw.stl' />
+          <OutlineView scale={scale} src='/assets/takt/models/nut.stl' />
         </Suspense>
       </scene>
     </>
