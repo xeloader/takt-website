@@ -8,7 +8,7 @@ function OutlineView (props) {
     src,
     scale: userScale = 1,
     angle = 10,
-    color = 'white',
+    color = 'lightgray',
     ...rest
   } = props
   // This reference will give us direct access to the mesh
@@ -57,7 +57,7 @@ function OutlineView (props) {
         onPointerOver={(e) => setHover(true)}
         onPointerOut={(e) => setHover(false)}
       >
-        <meshPhongMaterial color={hovered ? 'lightgray' : color} attach='material' />
+        <meshPhongMaterial color={color} attach='material' />
       </mesh>
     </group>
   )

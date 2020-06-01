@@ -3,10 +3,10 @@ import { Canvas } from 'react-three-fiber'
 import STLView from './OutlineScene'
 
 const OutlineViewDom = (props) => {
-  const { src } = props
+  const { src, ...rest } = props
   return (
     <Canvas>
-      <STLView src={src} />
+      <STLView src={src} {...rest} />
     </Canvas>
   )
 }

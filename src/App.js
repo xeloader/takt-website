@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import STLDom from './OutlineViewDom'
+
+import { Switch, Route, NavLink } from 'react-router-dom'
 
 const AppWrapper = styled.div`
 width: inherit;
@@ -10,13 +12,18 @@ height: inherit;
 const Grid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
+  row-gap: 1rem;
+  column-gap: 1rem;
+  width: 80vw;
+  margin: 0 auto;
+  padding-bottom: 2rem;
 `
 
 const GridItem = styled.div`
-  border: 2px solid black;
-  height: 25vh;
+  border: 2px solid lightgray;
+  height: 20vw;
   margin: 0 auto;
-  width: 25vh;
+  width: 20vw;
 `
 
 const LineList = styled.ul`
@@ -49,9 +56,10 @@ const NavList = styled.ul`
     display: inline-block;
     flex: 1;
     padding: 1rem;
-    &.selected {
+  }
+  .selected {
       border: 2px solid blue;
-    }
+      padding: 1rem;
   }
 `
 
@@ -78,6 +86,14 @@ const MaxWidth = styled.div`
 const ExtLink = ({ children, ...props }) => <a target='_blank' rel='noopener noreferrer' {...props}>{children}</a>
 
 function App () {
+  const [parts, setParts] = useState([
+    { src: '/assets/takt/models/99-lamp-shade.stl', viewProps: { scale: 0.025 } },
+    { src: '/assets/takt/models/hinge.stl', viewProps: { scale: 0.1 } },
+    { src: '/assets/takt/models/nut.stl' },
+    { src: '/assets/takt/models/screw.stl' },
+    { src: '/assets/takt/models/99-box.stl', viewProps: { scale: 0.025 } },
+    { src: '/assets/takt/models/47-box.stl', viewProps: { scale: 0.05 } }
+  ])
   return (
     <AppWrapper>
       <Side>
@@ -108,31 +124,34 @@ function App () {
         <nav>
           <NavList>
             <li>
-              <a href=''>kits</a>
-            </li>
-            <li className='selected'>
-              <a href=''>pieces</a>
+              <NavLink activeClassName='selected' to='/kits'>kits</NavLink>
             </li>
             <li>
-              <a href=''>photos</a>
+              <NavLink activeClassName='selected' to='/' exact>parts</NavLink>
+            </li>
+            <li>
+              <NavLink activeClassName='selected' to='/photos'>photos</NavLink>
             </li>
           </NavList>
         </nav>
       </MaxWidth>
-      <Grid>
-        <GridItem>
-          <STLDom src='/assets/takt/models/hinge.stl' />
-        </GridItem>
-        <GridItem>
-          <STLDom src='/assets/takt/models/nut.stl' />
-        </GridItem>
-        <GridItem>
-          <STLDom src='/assets/takt/models/screw.stl' />
-        </GridItem>
-        <GridItem>
-          <STLDom src='/assets/takt/models/hinge.stl' />
-        </GridItem>
-      </Grid>
+      <Switch>
+        <Route path='/kits'>
+          <p>Kits</p>
+        </Route>
+        <Route path='/photos'>
+          <p>Photos</p>
+        </Route>
+        <Route>
+          <Grid>
+            {parts.map(({ viewProps, ...props }) => (
+              <GridItem key={props.src}>
+                <STLDom viewProps={viewProps} {...props} />
+              </GridItem>
+            ))}
+          </Grid>
+        </Route>
+      </Switch>
     </AppWrapper>
   )
 }

@@ -26,7 +26,7 @@ function Scene (props) {
           <renderPass attachArray='passes' args={[scene, camera]} />
         </effectComposer>
         <Suspense fallback={<mesh><boxGeometry attach='geometry' /><meshBasicMaterial color='hotpink' attach='material' /></mesh>}>
-          <OutlineView {...viewProps} scale={scale} src={src} />
+          <OutlineView scale={scale} src={src} {...viewProps} />
         </Suspense>
       </scene>
     </>
