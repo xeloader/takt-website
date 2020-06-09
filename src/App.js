@@ -181,18 +181,17 @@ function App () {
           id: partId
         }
       })
-      .filter((part) => part != null)
-    Promise.all(
+      .filter((part) => part.src != null) // remove parts that doesnt exist in the github repo yet
+    Promise.all( // download all model files parallel
       requestedParts.map((part) => {
-        console.log(part.src)
-        return fetch(part.src)
+        return fetch(part.src) // download model file
           .then((response) => response.blob())
           .then((blob) => {
-            zip.file(part.id, blob)
+            zip.file(part.id, blob) // add file to zip
           })
       }))
-      .then((files) => {
-        zip.generateAsync({ type: 'blob' })
+      .then(() => {
+        zip.generateAsync({ type: 'blob' }) // generate zip file
           .then((blob) => saveAs(blob, `${kitId}.zip`))
       })
   }
