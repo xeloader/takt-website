@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import STLDom from './OutlineViewDom'
 import merge from 'deepmerge'
+import JSZip from 'jszip'
+import { saveAs } from 'file-saver'
 
 import { Switch, Route, NavLink } from 'react-router-dom'
+
+const { fetch } = window
 
 const AppWrapper = styled.div`
 width: inherit;
@@ -21,7 +25,8 @@ const Grid = styled.div`
 `
 
 const GridItem = styled.div`
-  border: 2px solid lightgray;
+  position: relative;
+  border: 2px solid ${props => props.borderColor || 'lightgray'};
   height: 20vw;
   margin: 0 auto;
   width: 20vw;
@@ -84,20 +89,33 @@ const MaxWidth = styled.div`
   max-width: ${props => props.maxWidth || '1024px'};
 `
 
+const BGImage = styled.figure`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: url(${props => props.src});
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  margin: 0;
+`
+
 const ExtLink = ({ children, ...props }) => <a target='_blank' rel='noopener noreferrer' {...props}>{children}</a>
 
 const API_ENDPOINT = 'https://api.github.com/repos/xeloader/takt-models/contents'
 const RAW_ENDPOINT = 'https://raw.githubusercontent.com/xeloader/takt-models/master'
 
-const getPartsMeta = () => new Promise((resolve, reject) => {
-  window.fetch(`${RAW_ENDPOINT}/meta/parts.json`)
+const getContent = (path) => new Promise((resolve, reject) => {
+  fetch(`${RAW_ENDPOINT}${path}`)
     .then((res) => res.json())
     .then(resolve)
     .catch(reject)
 })
+const getPartsMeta = () => getContent('/meta/parts.json')
+const getKitsMeta = () => getContent('/meta/kits.json')
 
 const getPartsList = () => new Promise((resolve, reject) => {
-  window.fetch(`${API_ENDPOINT}/`)
+  fetch(`${API_ENDPOINT}/`)
     .then((res) => res.json())
     .then((json) => {
       const files = json.filter((item) => item.type !== 'dir') // remove directories
@@ -109,31 +127,78 @@ const getPartsList = () => new Promise((resolve, reject) => {
 function App () {
   const [partMeta, setPartMeta] = useState({})
   const [partList, setPartList] = useState([])
+  const [kits, setKits] = useState({})
   const [parts, setParts] = useState([]) // every part as object
   useEffect(() => {
-    // merge lists
+    // merge parts and meta
     if (partList.length > 0 && partMeta.default) {
       const defaultMeta = partMeta.default
       const parts = partList
-        .map((part) => {
+        .reduce((acc, part) => {
           const meta = merge(
             defaultMeta,
             partMeta[part.name]
           ) // merge meta data
           return {
-            ...meta,
-            src: part.download_url
+            ...acc,
+            [part.name]: {
+              ...meta,
+              src: part.download_url
+            }
           }
-        })
-        .filter((part) => part.src != null)
-      console.log(parts)
+        }, {})
       setParts(parts)
     }
   }, [partList, partMeta])
   useEffect(() => {
     getPartsMeta().then(setPartMeta)
     getPartsList().then(setPartList)
+    getKitsMeta().then((kits) => {
+      const formatted = Object.keys(kits)
+        .reduce((acc, key) => {
+          const kit = kits[key]
+          const preview = `${RAW_ENDPOINT}/${kit.preview}`
+          return {
+            ...acc,
+            [key]: {
+              ...kit,
+              preview
+            }
+          }
+        }, {})
+      setKits(formatted)
+    })
   }, [])
+  const downloadKit = (kitId) => {
+    const zip = new JSZip()
+    const kit = kits[kitId]
+    const { parts: kitParts } = kit
+    const requestedParts = Object.keys(kitParts)
+      .map((partId) => {
+        const part = parts[partId]
+        return {
+          ...part,
+          id: partId
+        }
+      })
+      .filter((part) => part != null)
+    Promise.all(
+      requestedParts.map((part) => {
+        console.log(part.src)
+        return fetch(part.src)
+          .then((response) => response.blob())
+          .then((blob) => {
+            zip.file(part.id, blob)
+          })
+      }))
+      .then((files) => {
+        zip.generateAsync({ type: 'blob' })
+          .then((blob) => saveAs(blob, `${kitId}.zip`))
+      })
+  }
+  const handleDownload = (kitId) => (e) => {
+    downloadKit(kitId)
+  }
   return (
     <AppWrapper>
       <Side>
@@ -154,7 +219,7 @@ function App () {
       <MaxWidth maxWidth='512px'>
         <Title>TAKT</Title>
         <P>Building blocks that are modular and designed for 3D printing with sustainability in mind. The fragile parts are small and replaceable for waste reduction if something breaks.</P>
-        <P>The boxes are compatible with the <ExtLink href='https://teenage.engineering/designs/frekvens'>FREKVENS</ExtLink> collection from <ExtLink href='https://about.ikea.com/'>IKEA</ExtLink> and <ExtLink href='https://teenage.engineering'>Teenage Engineering</ExtLink>.</P>
+        <P>The blocks are compatible with the <ExtLink href='https://teenage.engineering/designs/frekvens'>FREKVENS</ExtLink> collection from <ExtLink href='https://about.ikea.com/'>IKEA</ExtLink> and <ExtLink href='https://teenage.engineering'>Teenage Engineering</ExtLink>.</P>
         <LineList>
           <li>3D printable without support</li>
           <li>Modular and connectable to each other</li>
@@ -177,18 +242,33 @@ function App () {
       </MaxWidth>
       <Switch>
         <Route path='/kits'>
-          <p>Kits</p>
+          <Grid>
+            {Object.keys(kits)
+              .map((key) => {
+                const kit = kits[key]
+                return (
+                  <GridItem key={key} onClick={handleDownload(key)}>
+                    <BGImage src={kit.preview} />
+                  </GridItem>
+                )
+              })}
+          </Grid>
         </Route>
         <Route path='/photos'>
           <p>Photos</p>
         </Route>
         <Route>
           <Grid>
-            {parts.map(({ viewer, ...props }) => (
-              <GridItem key={props.src}>
-                <STLDom viewProps={viewer} {...props} />
-              </GridItem>
-            ))}
+            {Object.keys(parts)
+              .map((key) => {
+                const part = parts[key]
+                const { viewer, ...props } = part
+                return (
+                  <GridItem key={props.src}>
+                    <STLDom viewProps={viewer} {...props} />
+                  </GridItem>
+                )
+              })}
           </Grid>
         </Route>
       </Switch>
