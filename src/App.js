@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import STLDom from './OutlineViewDom'
 
@@ -85,15 +85,52 @@ const MaxWidth = styled.div`
 
 const ExtLink = ({ children, ...props }) => <a target='_blank' rel='noopener noreferrer' {...props}>{children}</a>
 
+const API_ENDPOINT = 'https://api.github.com/repos/xeloader/takt-models/contents'
+const RAW_ENDPOINT = 'https://raw.githubusercontent.com/xeloader/takt-models/master'
+
+const getPartsMeta = () => new Promise((resolve, reject) => {
+  window.fetch(`${RAW_ENDPOINT}/meta/parts.json`)
+    .then((res) => res.json())
+    .then(resolve)
+    .catch(reject)
+})
+
+const getPartsList = () => new Promise((resolve, reject) => {
+  window.fetch(`${API_ENDPOINT}/`)
+    .then((res) => res.json())
+    .then((json) => {
+      const files = json.filter((item) => item.type !== 'dir') // remove directories
+      resolve(files)
+    })
+    .catch(reject)
+})
+
 function App () {
-  const [parts, setParts] = useState([
-    { src: '/assets/takt/models/99-lamp-shade.stl', viewProps: { scale: 0.025 } },
-    { src: '/assets/takt/models/hinge.stl', viewProps: { scale: 0.1 } },
-    { src: '/assets/takt/models/nut.stl' },
-    { src: '/assets/takt/models/screw.stl' },
-    { src: '/assets/takt/models/99-box.stl', viewProps: { scale: 0.025 } },
-    { src: '/assets/takt/models/47-box.stl', viewProps: { scale: 0.05 } }
-  ])
+  const [partMeta, setPartMeta] = useState({})
+  const [partList, setPartList] = useState([])
+  const [parts, setParts] = useState([]) // every part as object
+  useEffect(() => {
+    console.log(partList, partMeta)
+    // merge lists
+    if (partList.length > 0 && partMeta.default) {
+      const defaultMeta = partMeta.default
+      const parts = partList.map((part) => {
+        const { name } = part
+        const meta = partMeta[name]
+        return {
+          ...defaultMeta,
+          ...meta,
+          src: part.download_url
+        }
+      })
+      console.log(parts)
+      setParts(parts)
+    }
+  }, [partList, partMeta])
+  useEffect(() => {
+    getPartsMeta().then(setPartMeta)
+    getPartsList().then(setPartList)
+  }, [])
   return (
     <AppWrapper>
       <Side>
@@ -144,9 +181,9 @@ function App () {
         </Route>
         <Route>
           <Grid>
-            {parts.map(({ viewProps, ...props }) => (
+            {parts.map(({ viewer, ...props }) => (
               <GridItem key={props.src}>
-                <STLDom viewProps={viewProps} {...props} />
+                <STLDom viewProps={viewer} {...props} />
               </GridItem>
             ))}
           </Grid>
