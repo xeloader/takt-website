@@ -22,12 +22,27 @@ function OutlineView (props) {
 
   const gltf = useLoader(STLLoader, src)
   const [geometry, setGeometry] = useState()
+  const [measurements, setMeasurements] = useState([])
 
   useEffect(() => {
     setGeometry(new Geometry().fromBufferGeometry(gltf))
     const edges = new EdgesGeometry(gltf, angle)
     setEdges(edges)
   }, [gltf])
+  useEffect(() => {
+    if (!geometry) return
+    geometry.computeBoundingBox()
+    const bbox = geometry.boundingBox
+    const measurements = Object.keys(bbox.max)
+      .map((direction) => {
+        const max = bbox.max[direction]
+        const min = bbox.min[direction]
+        const length = Math.max(min, max) - Math.min(min, max)
+        return length
+      })
+    setMeasurements(measurements)
+    console.log(measurements)
+  }, [geometry])
   // Rotate mesh every frame, this is outside of React without overhead
   useFrame(() => {
     groupRef.current.rotation.x = groupRef.current.rotation.y += 0.01
