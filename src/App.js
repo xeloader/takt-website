@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import STLDom from './OutlineViewDom'
+import merge from 'deepmerge'
 
 import { Switch, Route, NavLink } from 'react-router-dom'
 
@@ -110,19 +111,21 @@ function App () {
   const [partList, setPartList] = useState([])
   const [parts, setParts] = useState([]) // every part as object
   useEffect(() => {
-    console.log(partList, partMeta)
     // merge lists
     if (partList.length > 0 && partMeta.default) {
       const defaultMeta = partMeta.default
-      const parts = partList.map((part) => {
-        const { name } = part
-        const meta = partMeta[name]
-        return {
-          ...defaultMeta,
-          ...meta,
-          src: part.download_url
-        }
-      })
+      const parts = partList
+        .map((part) => {
+          const meta = merge(
+            defaultMeta,
+            partMeta[part.name]
+          ) // merge meta data
+          return {
+            ...meta,
+            src: part.download_url
+          }
+        })
+        .filter((part) => part.src != null)
       console.log(parts)
       setParts(parts)
     }
