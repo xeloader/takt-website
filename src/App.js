@@ -167,9 +167,10 @@ function App () {
       const defaultMeta = partMeta.default
       const parts = partList
         .reduce((acc, part) => {
+          const specificMeta = partMeta[part.name] || {}
           const meta = merge(
             defaultMeta,
-            partMeta[part.name]
+            specificMeta
           ) // merge meta data
           return {
             ...acc,
