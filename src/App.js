@@ -24,6 +24,38 @@ const Grid = styled.div`
   padding-bottom: 2rem;
 `
 
+const Info = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: white;
+  border-top: 2px solid lightgray;
+  padding: 0.5rem;
+  box-sizing: border-box;
+  display: flex;
+`
+
+const CompatibleStamp = styled.span`
+  cursor: help;
+  font-style: super;
+  font-size: smaller;
+  color: lightgray;
+`
+
+const TopRight = styled.div`
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+`
+
+const Right = styled.div`
+  flex: 1;
+  text-align: right;
+`
+const Left = styled.div`
+  flex: 2;
+`
 const GridItem = styled.div`
   position: relative;
   border: 2px solid ${props => props.borderColor || 'lightgray'};
@@ -248,9 +280,6 @@ ${Object.keys(kit.parts)
             <li>
               <NavLink activeClassName='selected' to='/' exact>parts</NavLink>
             </li>
-            <li>
-              <NavLink activeClassName='selected' to='/photos'>photos</NavLink>
-            </li>
           </NavList>
         </nav>
       </MaxWidth>
@@ -268,18 +297,31 @@ ${Object.keys(kit.parts)
               })}
           </Grid>
         </Route>
-        <Route path='/photos'>
-          <p>Photos</p>
-        </Route>
         <Route>
           <Grid>
             {Object.keys(parts)
               .map((key) => {
                 const part = parts[key]
+                const { frekvens, takt } = part.compatibility
+                const compatible = (frekvens ? 'F' : '') + (takt ? 'T' : '')
+                const compatibleTitle = frekvens && takt
+                  ? 'Compatible with Frekvens and TAKT'
+                  : (takt)
+                    ? 'Only compatible with TAKT'
+                    : (frekvens)
+                      ? 'Only compatible with Frekvens'
+                      : 'Not compatible'
                 const { viewer, ...props } = part
                 return (
                   <GridItem key={props.src}>
                     <STLDom viewProps={viewer} {...props} />
+                    <TopRight>
+                      <CompatibleStamp title={compatibleTitle}>{compatible}</CompatibleStamp>
+                    </TopRight>
+                    <Info>
+                      <Left>{part.name || key}</Left>
+                      <Right><ExtLink href={part.src}>download</ExtLink></Right>
+                    </Info>
                   </GridItem>
                 )
               })}
