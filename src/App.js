@@ -169,10 +169,25 @@ function App () {
       setKits(formatted)
     })
   }, [])
+  const genManual = (kit) => {
+    return `
+${kit.name}
+${kit.description}
+
+[PRINT INSTRUCTIONS]
+${Object.keys(kit.parts)
+  .reduce((acc, cur) => {
+    const part = kit.parts[cur]
+    return `${acc}${cur}: ${part.quantity}pcs \n`
+  }, '')}
+`
+  }
   const downloadKit = (kitId) => {
     const zip = new JSZip()
     const kit = kits[kitId]
     const { parts: kitParts } = kit
+    const files = zip.folder('files')
+    zip.file('instructions.txt', genManual(kit))
     const requestedParts = Object.keys(kitParts)
       .map((partId) => {
         const part = parts[partId]
@@ -187,7 +202,7 @@ function App () {
         return fetch(part.src) // download model file
           .then((response) => response.blob())
           .then((blob) => {
-            zip.file(part.id, blob) // add file to zip
+            files.file(part.id, blob) // add file to zip
           })
       }))
       .then(() => {
