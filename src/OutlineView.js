@@ -45,7 +45,7 @@ function OutlineView (props) {
   }, [geometry])
   // Rotate mesh every frame, this is outside of React without overhead
   useFrame(() => {
-    groupRef.current.rotation.x = groupRef.current.rotation.y += 0.01
+    groupRef.current.rotation.x = groupRef.current.rotation.y += 0.005
     // console.log(mesh.current.parent.children)
   })
 
