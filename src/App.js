@@ -52,9 +52,13 @@ const TopRight = styled.div`
 const Right = styled.div`
   flex: 1;
   text-align: right;
+  align-items: center;
+  display: flex;
 `
 const Left = styled.div`
   flex: 2;
+  align-items: center;
+  display: flex;
 `
 const GridItem = styled.div`
   position: relative;
