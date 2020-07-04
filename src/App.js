@@ -70,11 +70,11 @@ const Info = styled.div`
   display: flex;
 `
 
-const CompatibleStamp = styled.span`
+const Question = styled.span`
   cursor: help;
   font-style: super;
   font-size: smaller;
-  color: lightgray;
+  color: rgba(0,0,0,0.25);
 `
 
 const TopRight = styled.div`
@@ -161,6 +161,11 @@ const BGImage = styled.figure`
   background-position: center center;
   background-size: cover;
   margin: 0;
+`
+
+const FakeLink = styled.a`
+  text-decoration: underline;
+  cursor: pointer;
 `
 
 const ExtLink = ({ children, ...props }) => <a target='_blank' rel='noopener noreferrer' {...props}>{children}</a>
@@ -322,9 +327,18 @@ ${Object.keys(kit.parts)
               .map((key) => {
                 const kit = kits[key]
                 return (
-                  <GridItem key={key} onClick={handleDownload(key)}>
+                  <GridItem key={key}>
                     <GridContent>
                       <BGImage src={kit.preview} />
+                      {kit.description && (
+                        <TopRight>
+                          <Question title={kit.description}>desc</Question>
+                        </TopRight>
+                      )}
+                      <Info>
+                        <Left>{kit.name || key}</Left>
+                        <Right><FakeLink onClick={handleDownload(key)}>download</FakeLink></Right>
+                      </Info>
                     </GridContent>
                   </GridItem>
                 )
@@ -351,7 +365,7 @@ ${Object.keys(kit.parts)
                     <GridContent>
                       <STLDom viewProps={viewer} {...props} />
                       <TopRight>
-                        <CompatibleStamp title={compatibleTitle}>{compatible}</CompatibleStamp>
+                        <Question title={compatibleTitle}>{compatible}</Question>
                       </TopRight>
                       <Info>
                         <Left>{part.name || key}</Left>
