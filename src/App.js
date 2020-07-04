@@ -246,8 +246,23 @@ ${kit.description}
 [PRINT INSTRUCTIONS]
 ${Object.keys(kit.parts)
   .reduce((acc, cur) => {
-    const part = kit.parts[cur]
-    return `${acc}${cur}: ${part.quantity}pcs \n`
+    const part = {
+      ...kit.parts[cur],
+      ...parts[cur]
+    }
+    const { printSettings: ps } = part
+    let row = `${acc}${cur}`
+    row += `\n\t${part.quantity}pcs`
+    if (ps) {
+      row += '\n\t'
+      row += ps.resolution ? `${ps.resolution}mm` : ''
+      row += ps.material && ps.resolution ? ',' : ''
+      row += ps.material ? `${ps.material}` : ''
+      row += ps.material && ps.notes ? ',' : ''
+      row += ps.notes ? `${ps.notes}` : ''
+    }
+    row += '\n\n'
+    return row
   }, '')}
 `
   }
