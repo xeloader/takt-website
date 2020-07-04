@@ -14,14 +14,48 @@ width: inherit;
 height: inherit;
 `
 
+const GridItem = styled.div`
+  position: relative;
+  border: 2px solid ${props => props.borderColor || 'lightgray'};
+  padding-bottom: 100%;
+`
+
+const GridContent = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+`
+
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   row-gap: 1rem;
   column-gap: 1rem;
-  width: 80vw;
+  width: 90vw;
   margin: 0 auto;
   padding-bottom: 2rem;
+  @media (max-width: 1440px) {
+    & {
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+  }
+  @media (max-width: 1280px) {
+    & {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+  }
+  @media (max-width: 840px) {
+    & {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 640px) {
+    & {
+      grid-template-columns: 1fr;
+    }
+  }
 `
 
 const Info = styled.div`
@@ -59,13 +93,6 @@ const Left = styled.div`
   flex: 2;
   align-items: center;
   display: flex;
-`
-const GridItem = styled.div`
-  position: relative;
-  border: 2px solid ${props => props.borderColor || 'lightgray'};
-  height: 20vw;
-  margin: 0 auto;
-  width: 20vw;
 `
 
 const LineList = styled.ul`
@@ -296,7 +323,9 @@ ${Object.keys(kit.parts)
                 const kit = kits[key]
                 return (
                   <GridItem key={key} onClick={handleDownload(key)}>
-                    <BGImage src={kit.preview} />
+                    <GridContent>
+                      <BGImage src={kit.preview} />
+                    </GridContent>
                   </GridItem>
                 )
               })}
@@ -319,14 +348,16 @@ ${Object.keys(kit.parts)
                 const { viewer, ...props } = part
                 return (
                   <GridItem key={props.src}>
-                    <STLDom viewProps={viewer} {...props} />
-                    <TopRight>
-                      <CompatibleStamp title={compatibleTitle}>{compatible}</CompatibleStamp>
-                    </TopRight>
-                    <Info>
-                      <Left>{part.name || key}</Left>
-                      <Right><ExtLink href={part.src}>download</ExtLink></Right>
-                    </Info>
+                    <GridContent>
+                      <STLDom viewProps={viewer} {...props} />
+                      <TopRight>
+                        <CompatibleStamp title={compatibleTitle}>{compatible}</CompatibleStamp>
+                      </TopRight>
+                      <Info>
+                        <Left>{part.name || key}</Left>
+                        <Right><ExtLink href={part.src}>download</ExtLink></Right>
+                      </Info>
+                    </GridContent>
                   </GridItem>
                 )
               })}
