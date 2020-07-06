@@ -11,25 +11,23 @@ function Scene (props) {
   const renderer = useThree()
   const { viewProps, src } = props
   const { gl, camera, size, scene } = renderer
-  useEffect(() => composer.current.setSize(size.width, size.height), [size])
+  // useEffect(() => composer.current.setSize(size.width, size.height), [size])
   // hijack render loop
-  useFrame((_) => {
-    composer.current.render()
-  }, 1)
+  // useFrame((_) => {
+  //   composer.current.render()
+  // }, 1)
   const scale = 0.2
   return (
-    <>
-      <scene>
-        <ambientLight />
-        <pointLight position={[10, 10, 10]} />
-        <effectComposer ref={composer} args={[gl]}>
+    <scene>
+      <ambientLight />
+      <pointLight position={[10, 10, 10]} />
+      {/* <effectComposer ref={composer} args={[gl]}>
           <renderPass attachArray='passes' args={[scene, camera]} />
-        </effectComposer>
-        <Suspense fallback={<mesh><boxGeometry attach='geometry' /><meshBasicMaterial color='hotpink' attach='material' /></mesh>}>
-          <OutlineView scale={scale} src={src} {...viewProps} />
-        </Suspense>
-      </scene>
-    </>
+        </effectComposer> */}
+      <Suspense fallback={<mesh><boxGeometry attach='geometry' /><meshBasicMaterial color='hotpink' attach='material' /></mesh>}>
+        <OutlineView scale={scale} src={src} {...viewProps} />
+      </Suspense>
+    </scene>
   )
 }
 
