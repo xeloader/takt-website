@@ -130,12 +130,13 @@ const NavList = styled.ul`
     min-width: 2rem;
     & > a {
     cursor: pointer;
+    text-decoration: underline;
     }
   }
   .selected {
     ${props => props.index
     ? css`
-      text-decoration: underline;
+      text-decoration: none;
       padding: 0.5rem;
     `
     : css`
