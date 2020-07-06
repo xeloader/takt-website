@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import STLDom from './OutlineViewDom'
 import merge from 'deepmerge'
 import JSZip from 'jszip'
@@ -8,6 +8,8 @@ import { saveAs } from 'file-saver'
 import { Switch, Route, NavLink } from 'react-router-dom'
 
 const { fetch } = window
+
+const PER_PAGE = 12
 
 const AppWrapper = styled.div`
 width: inherit;
@@ -123,12 +125,23 @@ const NavList = styled.ul`
   text-align: center;
   & > li {
     display: inline-block;
-    flex: 1;
-    padding: 1rem;
+    flex: ${props => props.index ? 0 : 1};
+    padding: ${props => props.index ? '0.5rem' : '1rem'};
+    min-width: 2rem;
+    & > a {
+    cursor: pointer;
+    }
   }
   .selected {
+    ${props => props.index
+    ? css`
+      text-decoration: underline;
+      padding: 0.5rem;
+    `
+    : css`
       border: 2px solid blue;
       padding: 1rem;
+    `}
   }
 `
 
@@ -196,7 +209,16 @@ function App () {
   const [partMeta, setPartMeta] = useState({})
   const [partList, setPartList] = useState([])
   const [kits, setKits] = useState({})
-  const [parts, setParts] = useState([]) // every part as object
+  const [parts, setParts] = useState({}) // every part as object
+
+  const [page, setPage] = useState(0) // current page
+  const [search, setSearch] = useState('') // search for parts
+
+  const partIndex = Object.keys(parts)
+  const pages = partIndex.length > 0
+    ? parseInt(Math.ceil(partIndex.length / PER_PAGE))
+    : 0
+  const pageIndex = Array.from(Array(pages))
   useEffect(() => {
     // merge parts and meta
     if (partList.length > 0 && partMeta.default) {
@@ -361,8 +383,19 @@ ${Object.keys(kit.parts)
           </Grid>
         </Route>
         <Route>
+          <nav>
+            <NavList index>
+              <li><span>page</span></li>
+              {pageIndex.map((_, i) =>
+                <li onClick={() => setPage(i)} key={i}>
+                  <a className={i === page && 'selected'}>{i + 1}</a>
+                </li>
+              )}
+            </NavList>
+          </nav>
           <Grid>
             {Object.keys(parts)
+              .slice(PER_PAGE * page, PER_PAGE * page + PER_PAGE)
               .map((key) => {
                 const part = parts[key]
                 const { frekvens, takt } = part.compatibility
