@@ -37,7 +37,6 @@ const Grid = styled.div`
   column-gap: 1rem;
   width: 90vw;
   margin: 0 auto;
-  padding-bottom: 2rem;
   @media (max-width: 1440px) {
     & {
       grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -121,7 +120,7 @@ const NavList = styled.ul`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  padding: 2rem 1rem 1rem 1rem;
+  padding: ${props => props.bottom ? '2rem 1rem 1rem 1rem' : '1rem 1rem 2rem 1rem'};
   text-align: center;
   & > li {
     display: inline-block;
@@ -181,6 +180,22 @@ const FakeLink = styled.a`
   text-decoration: underline;
   cursor: pointer;
 `
+
+const Pagination = (props) => {
+  const { pageIndex, currentPage, onPage: handlePage } = props
+  return (
+    <nav>
+      <NavList index>
+        <li><span>page</span></li>
+        {pageIndex.map((_, i) =>
+          <li onClick={() => handlePage(i)} key={i}>
+            <a className={i === currentPage && 'selected'}>{i + 1}</a>
+          </li>
+        )}
+      </NavList>
+    </nav>
+  )
+}
 
 const ExtLink = ({ children, ...props }) => <a target='_blank' rel='noopener noreferrer' {...props}>{children}</a>
 
@@ -388,16 +403,11 @@ ${Object.keys(kit.parts)
           </Grid>
         </Route>
         <Route>
-          <nav>
-            <NavList index>
-              <li><span>page</span></li>
-              {pageIndex.map((_, i) =>
-                <li onClick={() => setPage(i)} key={i}>
-                  <a className={i === page && 'selected'}>{i + 1}</a>
-                </li>
-              )}
-            </NavList>
-          </nav>
+          <Pagination
+            currentPage={page}
+            pageIndex={pageIndex}
+            onPage={setPage}
+          />
           <Grid>
             {displayParts
               .map((key) => {
@@ -428,6 +438,12 @@ ${Object.keys(kit.parts)
                 )
               })}
           </Grid>
+          <Pagination
+            bottom
+            currentPage={page}
+            pageIndex={pageIndex}
+            onPage={setPage}
+          />
         </Route>
       </Switch>
     </AppWrapper>
