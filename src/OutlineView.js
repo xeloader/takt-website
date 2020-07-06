@@ -41,7 +41,7 @@ function OutlineView (props) {
         return length
       })
     setMeasurements(measurements)
-    console.log(measurements)
+    // console.log(measurements)
   }, [geometry])
   // Rotate mesh every frame, this is outside of React without overhead
   useFrame(() => {
