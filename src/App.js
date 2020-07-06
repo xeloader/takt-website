@@ -220,6 +220,10 @@ function App () {
     ? parseInt(Math.ceil(partIndex.length / PER_PAGE))
     : 0
   const pageIndex = Array.from(Array(pages))
+
+  const displayParts = Object.keys(parts)
+    .sort((a, b) => parts[b].orderWeight - parts[a].orderWeight)
+    .slice(PER_PAGE * page, PER_PAGE * page + PER_PAGE)
   useEffect(() => {
     // merge parts and meta
     if (partList.length > 0 && partMeta.default) {
@@ -395,8 +399,7 @@ ${Object.keys(kit.parts)
             </NavList>
           </nav>
           <Grid>
-            {Object.keys(parts)
-              .slice(PER_PAGE * page, PER_PAGE * page + PER_PAGE)
+            {displayParts
               .map((key) => {
                 const part = parts[key]
                 const { frekvens, takt } = part.compatibility
