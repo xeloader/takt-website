@@ -11,6 +11,7 @@ import { Group, Color } from './BlendModes'
 
 const { fetch } = window
 
+const M = '840px'
 const PER_PAGE = 12
 
 const AppWrapper = styled.div`
@@ -49,7 +50,7 @@ const Grid = styled.div`
       grid-template-columns: 1fr 1fr 1fr;
     }
   }
-  @media (max-width: 840px) {
+  @media (max-width: ${M}) {
     & {
       grid-template-columns: 1fr 1fr;
     }
@@ -117,6 +118,12 @@ const SideNavList = styled.ul`
   list-style: none;
   text-align: right;
   line-height: 150%;
+  box-sizing: border-box;
+  @media (max-width: ${M}) {
+    padding: 1rem 1rem 0 1rem;
+    margin: 0;
+    text-align: center;
+  }
 `
 
 const NavList = styled.ul`
@@ -161,7 +168,11 @@ const Side = styled.aside`
   position: absolute;
   top: 1rem;
   right: 1rem;
-
+  @media (max-width: ${M}) {
+    position: relative;
+    top: unset;
+    right: unset;
+  }
 `
 
 const MaxWidth = styled.div`
