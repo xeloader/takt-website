@@ -7,6 +7,8 @@ import { saveAs } from 'file-saver'
 
 import { Switch, Route, NavLink } from 'react-router-dom'
 
+import { Group, Color } from './BlendModes'
+
 const { fetch } = window
 
 const PER_PAGE = 12
@@ -165,8 +167,13 @@ const MaxWidth = styled.div`
   max-width: ${props => props.maxWidth || '1024px'};
 `
 
-const BGImage = styled.figure`
+const BGWrapper = styled.div`
   position: absolute;
+  width: 100%;
+  height: 100%;
+`
+
+const BGImage = styled.figure`
   width: 100%;
   height: 100%;
   background-image: url(${props => props.src});
@@ -386,7 +393,11 @@ ${Object.keys(kit.parts)
                 return (
                   <GridItem key={key}>
                     <GridContent>
-                      <BGImage src={kit.preview} />
+                      <Group>
+                        <Color color='black' />
+                        <Color color='blue' opacity={0.75} />
+                        <BGImage src={kit.preview} />
+                      </Group>
                       {kit.description && (
                         <TopRight>
                           <Question title={kit.description}>desc</Question>
