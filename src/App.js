@@ -63,6 +63,7 @@ const Grid = styled.div`
 
 const Info = styled.div`
   position: absolute;
+  z-index: 100;
   bottom: 0;
   left: 0;
   width: 100%;
@@ -82,6 +83,7 @@ const Question = styled.span`
 
 const TopRight = styled.div`
   position: absolute;
+  z-index: 100;
   top: 0.5rem;
   right: 0.5rem;
 `
