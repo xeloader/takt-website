@@ -38,6 +38,7 @@ const Grid = styled.div`
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   row-gap: 1rem;
   column-gap: 1rem;
+  padding-bottom: 1rem;
   width: 90vw;
   margin: 0 auto;
   @media (max-width: 1440px) {
