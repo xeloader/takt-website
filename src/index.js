@@ -1,15 +1,12 @@
 
 import './index.css'
 
-import ReactDOM from 'react-dom'
 import React from 'react'
-import {
-  BrowserRouter as Router,
-  Route
-} from 'react-router-dom'
+import { render } from 'react-snapshot'
+import { BrowserRouter as Router } from 'react-router-dom'
 import App from './App'
 
-ReactDOM.render(
+render(
   <Router>
     <App />
   </Router>,
